@@ -294,7 +294,8 @@ for DataIdx = 2: DataSamples-1
     LD2B_hat = E2LD'*B2E_hat';
     
     % Output Euler angle on navigation frome (NED)
-    [AA1, AA2, AA3] = dcm2angle(LD2B_hat, 'ZYX');
+%     [AA1, AA2, AA3] = dcm2angle(LD2B_hat, 'ZYX');
+    [AA1, AA2, AA3] = DCM2ANGLE_321(LD2B_hat);
     Yawd(DataIdx) = rad2deg(AA1);
     Pitchd(DataIdx) = rad2deg(AA2);
     Rolld(DataIdx) = rad2deg(AA3);

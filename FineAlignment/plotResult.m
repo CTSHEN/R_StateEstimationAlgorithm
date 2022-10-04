@@ -60,7 +60,7 @@ if DISPLACEMENT == true
     ylabel('m');
     subplot(3,1,3);
     plot(time, States(15,1:DataIdx) - States(15,1));
-    title('DisplacementY (ECEF)');
+    title('DisplacementZ (ECEF)');
     ylabel('m');
     xlabel('time (seconds)');
 end

@@ -40,7 +40,7 @@ g_LD = [0;0;g];  % Reference gravitational measurement in local NED frame.
 w_IE_E = [0;0;EarthRotation]; % Earth angular velocity expressed in ECEF frame
 
 %%%% Selcet the Start and End time of the testing data %%%%%%%%
-Start_min = 10; % in minutes.
+Start_min = 40; % in minutes.
 End_min = 60;
 StartSample = 200*60*(Start_min)+1;
 EndSample = 200*60*(End_min);  
@@ -86,15 +86,18 @@ TBA3 = 1;
 Yawd_init =  -130.5595; 
 Pitchd_init = 0.0057;
 Rolld_init = 179.9953;  % in NED
-LD2B = angle2dcm(deg2rad(Yawd_init),deg2rad(Pitchd_init),deg2rad(Rolld_init), 'ZYX');  % Local NED to Body (NED)
-E2LD = dcmecef2ned(TestLat, TestLong);
+% LD2B = angle2dcm(deg2rad(Yawd_init),deg2rad(Pitchd_init),deg2rad(Rolld_init), 'ZYX');  % Local NED to Body (NED)
+LD2B = ANGLE2DCM_321(deg2rad(Yawd_init),deg2rad(Pitchd_init),deg2rad(Rolld_init)); % Local NED to Body (NED)
+% E2LD = dcmecef2ned(TestLat, TestLong);
+E2LD = DCM_ECEF2NED(TestLat, TestLong);
 E2B = E2LD*LD2B;
 B2E_hat = E2B';
 
 g_E = E2LD' * g_LD;  % Transform g from NED to ECEF.
 
 v_E_hat = [0;0;0];  % Initial velocity
-r_E_hat = lla2ecef([TestLat TestLong TestAlt])';  % initial position
+% r_E_hat = lla2ecef([TestLat TestLong TestAlt])';  % initial position
+r_E_hat = POS_LLA2ECEF(TestLat, TestLong, TestAlt);  % initial position
 bw = [-9.22E-07;3.85E-06;9.76E-07];  % initial gyro bias
 ba = [-0.01173;0.01877;-0.00778]; % initial acc bias
 
@@ -174,7 +177,8 @@ for DataIdx = 2: DataSamples-1
     
     
    %%%% Error state model %%%%
-    LLA_hat = ecef2lla(r_E_hat');
+%     LLA_hat = ecef2lla(r_E_hat');
+    LLA_hat = POS_ECEF2LLA(r_E_hat);
     Lat_hat = LLA_hat(1);
     g0 = 9.7803253359*(1+0.001931853*sin(deg2rad(Lat_hat))^2)/sqrt(1-e^2*sin(deg2rad(Lat_hat))^2);  %m/s^2
     RE = R0/sqrt(1-e^2*sin(deg2rad(Lat_hat))^2);
@@ -281,10 +285,12 @@ for DataIdx = 2: DataSamples-1
     % Reset error state
     Err_states(1:15) = zeros(15,1);
     % clauclate new E2LD
-    LLA_hat= ecef2lla(r_E_hat');
+%     LLA_hat= ecef2lla(r_E_hat');
+    LLA_hat = POS_ECEF2LLA(r_E_hat);
     Lat_hat = LLA_hat(1);
     Long_hat = LLA_hat(2);
-    E2LD = dcmecef2ned(Lat_hat, Long_hat);
+%     E2LD = dcmecef2ned(Lat_hat, Long_hat);
+    E2LD = DCM_ECEF2NED(Lat_hat, Long_hat);
     LD2B_hat = E2LD'*B2E_hat';
     
     % Output Euler angle on navigation frome (NED)
